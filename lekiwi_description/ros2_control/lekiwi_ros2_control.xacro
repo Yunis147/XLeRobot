@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="lekiwi_system" params="use_sim:=true">
+
+    <ros2_control name="LeKiwiSystem" type="system">
+      <hardware>
+<plugin>gz_ros2_control/GazeboSimSystem</plugin>
+</hardware>
+
+
+      <!-- ================= BASE WHEELS ================= -->
+
+      <joint name="ST3215_Servo_Motor-v1-2_Revolute-60">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="ST3215_Servo_Motor-v1-1_Revolute-62">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="ST3215_Servo_Motor-v1_Revolute-64">
+        <command_interface name="velocity"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <!-- ================= ARM JOINTS ================= -->
+
+      <joint name="STS3215_03a-v1_Revolute-45">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="STS3215_03a-v1-1_Revolute-49">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="STS3215_03a-v1-2_Revolute-51">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="STS3215_03a-v1-3_Revolute-53">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="STS3215_03a_Wrist_Roll-v1_Revolute-55">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="STS3215_03a-v1-4_Revolute-57">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

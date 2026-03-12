@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: lekiwi_description
+    relative_path: URDF/lekiwi.urdf.xacro
+  srdf:
+    relative_path: config/LeKiwi.srdf
+  package_settings:
+    author_name: Yunis
+    author_email: shaikyunis181@gmail.com
+    generated_timestamp: 1771842262
