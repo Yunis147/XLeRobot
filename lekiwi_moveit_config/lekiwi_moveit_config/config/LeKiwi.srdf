@@ -10,10 +10,10 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
-    <chain base_link="base_plate_layer1-v5" tip_link="Wrist_Roll_08c-v1"/>
-</group>
+        <chain base_link="base_plate_layer1-v5" tip_link="Wrist_Roll_08c-v1"/>
+    </group>
     <group name="gripper">
-        <chain base_link="STS3215_03a-v1-4" tip_link="Moving_Jaw_08d-v1"/>
+        <chain base_link="STS3215_03a-v1-4" tip_link="end_effector"/>
     </group>
     <group name="base">
         <joint name="ST3215_Servo_Motor-v1-2_Revolute-60"/>
@@ -21,10 +21,9 @@
         <joint name="ST3215_Servo_Motor-v1-1_Revolute-62"/>
     </group>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="gripper" parent_link="Wrist_Roll_08c-v1" group="gripper" parent_group="arm"/>
+    <end_effector name="gripper" parent_link="end_effector" group="gripper" parent_group="gripper"/>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
-    <!-- <virtual_joint name="world_joint" type="fixed" parent_frame="world" child_link="base_plate_layer1-v5"/> -->
-   <virtual_joint name="world_joint" type="fixed" parent_frame="world" child_link="base_plate_layer1-v5"/>
+    <virtual_joint name="world_joint" type="fixed" parent_frame="world" child_link="base_plate_layer1-v5"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="4-Omni-Directional-Wheel_Single_Body-v1" link2="4-Omni-Directional-Wheel_Single_Body-v1-1" reason="Never"/>
     <disable_collisions link1="4-Omni-Directional-Wheel_Single_Body-v1" link2="4-Omni-Directional-Wheel_Single_Body-v1-2" reason="Never"/>

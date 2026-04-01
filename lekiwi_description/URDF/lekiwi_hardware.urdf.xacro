@@ -866,6 +866,39 @@
         <material name="grey"/>
         </collision>
     </link>
+
+
+
+
+    <link name="end_effector">
+        <inertial>
+            <mass value="0.001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="1e-6" iyy="1e-6" izz="1e-6"
+                    ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0"/>
+            <geometry>
+            <sphere radius="0.005"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+            <sphere radius="0.005"/>
+            </geometry>
+        </collision>
+     </link>
+
+
+<!-- hmmmm -->
+
+
+
     <link name="Camera-Model-v3-1">
         <inertial>
             <origin xyz="0.00942672137716988 -0.014773756775059326 -0.01034538997402958" rpy="4.379057701015054e-47 -5.551115123125784e-17 0.0" />
@@ -1159,6 +1192,20 @@
         <child link="Moving_Jaw_08d-v1" />
         <axis xyz="-2.74128770133849e-31 -0.9063079999999999 -0.422618" />
     </joint>
+
+
+
+    <joint name="gripper_to_eef" type="fixed">
+    <parent link="Moving_Jaw_08d-v1"/>
+    <child link="end_effector"/>
+    <origin xyz="0.02 0.04 -0.03" rpy="0 0 0"/>
+    </joint>
+    
+
+<!-- hmmm ee -->
+
+
+
     <joint name="Wrist_Roll_08c-v1_Rigid-58" type="fixed">
         <origin xyz="0.012999999999999998 0.027192599999999983 -0.0015258700000000047" rpy="-1.5707963267948966 -0.0 0.0" />
         <parent link="Wrist_Roll_08c-v1" />

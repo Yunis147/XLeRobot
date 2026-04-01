@@ -5,6 +5,7 @@
   <color rgba="0.2 0.2 0.2 1"/>
 </material>
 
+
     <link name="base_plate_layer1-v5">
         <inertial>
             <origin xyz="-4.730687660675253e-15 -2.7155537377808555e-05 -0.0035000000000000005" rpy="0.0 0.0 0.0" />
@@ -950,6 +951,33 @@
         <material name="grey"/>
         </collision>
     </link>
+
+    <link name="end_effector">
+        <inertial>
+            <mass value="0.001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="1e-6" iyy="1e-6" izz="1e-6"
+                    ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+
+        <visual>
+            <origin xyz="0 0 0"/>
+            <geometry>
+            <sphere radius="0.005"/>
+            </geometry>
+            <material name="grey"/>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+            <sphere radius="0.005"/>
+            </geometry>
+        </collision>
+     </link>
+
+<!-- hmmmmm -->
+
     <joint name="base_plate_layer1-v5_baseplate2bottom_mount" type="fixed">
         <origin xyz="-0.02 -0.1 0.0" rpy="3.141592653589793 -0.0 0.0" />
         <parent link="base_plate_layer1-v5" />
@@ -1174,6 +1202,18 @@
         <limit lower = "-0.15" upper = "1.57" effort = "10" velocity ="3.0"/>
         <dynamics damping = "0.5" friction = "0.1"/>
     </joint>
+
+
+
+    <joint name="gripper_to_eef" type="fixed">
+    <parent link="Moving_Jaw_08d-v1"/>
+    <child link="end_effector"/>
+    <origin xyz="0.02 0.04 -0.03" rpy="0 0 0"/>
+    </joint>
+    
+<!-- hmmmm ee -->
+
+
     <joint name="Wrist_Roll_08c-v1_Rigid-58" type="fixed">
         <origin xyz="0.012999999999999998 0.027192599999999983 -0.0015258700000000047" rpy="-1.5707963267948966 -0.0 0.0" />
         <parent link="Wrist_Roll_08c-v1" />
@@ -1204,6 +1244,8 @@
     <parameters>$(find lekiwi_bringup)/config/controllers.yaml</parameters>
   </plugin>
 </gazebo>
+
+
 
 
 
