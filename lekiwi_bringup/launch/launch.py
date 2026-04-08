@@ -10,7 +10,6 @@ def generate_launch_description():
     description_path = get_package_share_directory('lekiwi_description')
     bringup_path = get_package_share_directory('lekiwi_bringup')
 
-    # ---- Process Hardware Xacro ----
     xacro_file = os.path.join(
         description_path,
         'URDF',
@@ -22,14 +21,12 @@ def generate_launch_description():
 
     robot_description = {'robot_description': robot_desc}
 
-    # ---- Controller Config File ----
     controller_config = os.path.join(
         bringup_path,
         'config',
         'controllers.yaml'
     )
 
-    # ---- ros2_control_node (THIS STARTS controller_manager) ----
     control_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -37,7 +34,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # ---- Robot State Publisher ----
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -45,7 +41,12 @@ def generate_launch_description():
         output='screen'
     )
 
-    # ---- Controller Spawners ----
+    motor_odom_node = Node(
+        package='lekiwi_bringup',  
+        executable='motor_odom',
+        output='screen'
+    )
+
     joint_state_spawner = Node(
         package='controller_manager',
         executable='spawner',
@@ -73,30 +74,32 @@ def generate_launch_description():
         arguments=['gripper_controller'],
         output='screen'
     )
+    
     arm_home = TimerAction(
-    period=4.0,  # wait 3 seconds for controllers to fully activate
-    actions=[
-        ExecuteProcess(
-            cmd=[
-                'ros2', 'topic', 'pub', '--once',
-                '/arm_position_controller/joint_trajectory',
-                'trajectory_msgs/msg/JointTrajectory',
-                '{joint_names: ["STS3215_03a-v1_Revolute-45", '
-                '"STS3215_03a-v1-1_Revolute-49", '
-                '"STS3215_03a-v1-2_Revolute-51", '
-                '"STS3215_03a-v1-3_Revolute-53", '
-                '"STS3215_03a_Wrist_Roll-v1_Revolute-55"], '
-                'points: [{positions: [0.00, 0.00, 0.00, 0.00, 0.00], '
-                'time_from_start: {sec: 2, nanosec: 0}}]}'
-            ],
-            output='screen'
-        )
-    ]
-)
+        period=5.0,  
+        actions=[
+            ExecuteProcess(
+                cmd=[
+                    'ros2', 'topic', 'pub', '--once',
+                    '/arm_position_controller/joint_trajectory',
+                    'trajectory_msgs/msg/JointTrajectory',
+                    '{joint_names: ["STS3215_03a-v1_Revolute-45", '
+                    '"STS3215_03a-v1-1_Revolute-49", '
+                    '"STS3215_03a-v1-2_Revolute-51", '
+                    '"STS3215_03a-v1-3_Revolute-53", '
+                    '"STS3215_03a_Wrist_Roll-v1_Revolute-55"], '
+                    'points: [{positions: [0.00, 0.00, 0.00, 0.00, 0.00], '
+                    'time_from_start: {sec: 3, nanosec: 0}}]}'
+                ],
+                output='screen'
+            )
+        ]
+    )
 
     return LaunchDescription([
         rsp,
         control_node,
+        motor_odom_node,  
         joint_state_spawner,
         arm_spawner,
         base_spawner,

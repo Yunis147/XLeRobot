@@ -32,6 +32,8 @@ setup(
         'test': ['pytest'],
     },
     entry_points={
-        'console_scripts': [],
+        'console_scripts': [
+'motor_odom = lekiwi_bringup.motor_odom:main',
+],
     },
 )

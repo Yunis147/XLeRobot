@@ -18,41 +18,41 @@ class ST3215System : public hardware_interface::SystemInterface
 {
 public:
 
-hardware_interface::CallbackReturn on_init(
-  const hardware_interface::HardwareInfo & info) override
-{
-  if (hardware_interface::SystemInterface::on_init(info) !=
-      hardware_interface::CallbackReturn::SUCCESS)
+  hardware_interface::CallbackReturn on_init(
+    const hardware_interface::HardwareInfo & info) override
   {
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
-  port_name_ = info_.hardware_parameters["port_name"];
-  baud_rate_ = std::stoi(info_.hardware_parameters["baud_rate"]);
-
-  size_t n = info_.joints.size();
-
-  position_.resize(n, 0.0);
-  velocity_.resize(n, 0.0);
-  cmd_position_.resize(n, 0.0);
-  cmd_velocity_.resize(n, 0.0);
-  last_sent_position_.resize(n, 0.0);
-  joint_ids_.resize(n);
-  is_velocity_joint_.resize(n, false);
-
-  for (size_t i = 0; i < n; ++i)
-  {
-    joint_ids_[i] = std::stoi(info_.joints[i].parameters.at("id"));
-
-    for (auto & ci : info_.joints[i].command_interfaces)
+    if (hardware_interface::SystemInterface::on_init(info) !=
+        hardware_interface::CallbackReturn::SUCCESS)
     {
-      if (ci.name == hardware_interface::HW_IF_VELOCITY)
-        is_velocity_joint_[i] = true;
+      return hardware_interface::CallbackReturn::ERROR;
     }
-  }
 
-  return hardware_interface::CallbackReturn::SUCCESS;
-}
+    port_name_ = info_.hardware_parameters["port_name"];
+    baud_rate_ = std::stoi(info_.hardware_parameters["baud_rate"]);
+
+    size_t n = info_.joints.size();
+
+    position_.resize(n, 0.0);
+    velocity_.resize(n, 0.0);
+    cmd_position_.resize(n, 0.0);
+    cmd_velocity_.resize(n, 0.0);
+    last_sent_position_.resize(n, 0.0);
+    joint_ids_.resize(n);
+    is_velocity_joint_.resize(n, false);
+
+    for (size_t i = 0; i < n; ++i)
+    {
+      joint_ids_[i] = std::stoi(info_.joints[i].parameters.at("id"));
+
+      for (auto & ci : info_.joints[i].command_interfaces)
+      {
+        if (ci.name == hardware_interface::HW_IF_VELOCITY)
+          is_velocity_joint_[i] = true;
+      }
+    }
+
+    return hardware_interface::CallbackReturn::SUCCESS;
+  }
 
   std::vector<hardware_interface::StateInterface>
   export_state_interfaces() override
@@ -95,62 +95,55 @@ hardware_interface::CallbackReturn on_init(
   }
 
 
-hardware_interface::CallbackReturn on_activate(
-  const rclcpp_lifecycle::State &) override
-{
-  std::cout << "--- STARTING ON_ACTIVATE ---" << std::endl;
-
-  if (!servo_.begin(baud_rate_, port_name_.c_str()))
+  hardware_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State &) override
   {
-    std::cout << "FAILED TO OPEN SERIAL PORT" << std::endl;
-    return hardware_interface::CallbackReturn::ERROR;
-  }
+    std::cout << "--- STARTING ON_ACTIVATE ---" << std::endl;
 
-  std::cout << "Serial port opened successfully." << std::endl;
-
-  for (size_t i = 0; i < joint_ids_.size(); ++i)
-  {
-    int id = joint_ids_[i];
-
-    servo_.EnableTorque(id, 0);
-
-    if (is_velocity_joint_[i])
+    if (!servo_.begin(baud_rate_, port_name_.c_str()))
     {
-      // ================= WHEELS =================
-      servo_.WheelMode(id);
-      servo_.EnableTorque(id, 1);
-      servo_.WriteSpe(id, 0, 0);
-
-      cmd_velocity_[i] = 0.0;
-      velocity_[i] = 0.0;
+      std::cout << "FAILED TO OPEN SERIAL PORT" << std::endl;
+      return hardware_interface::CallbackReturn::ERROR;
     }
-    else
+
+    std::cout << "Serial port opened successfully." << std::endl;
+
+    for (size_t i = 0; i < joint_ids_.size(); ++i)
     {
-      // ================= ARM =================
-      servo_.EnableTorque(id, 1);
+      int id = joint_ids_[i];
 
-      // Read current physical position
-      int raw_pos = servo_.ReadPos(id);
+      servo_.EnableTorque(id, 0);
 
-     // if (raw_pos == -1)
-      //{
-        //std::cout << "Failed to read position for ID: " << id << std::endl;
-       // return hardware_interface::CallbackReturn::ERROR;
-      //}
+      if (is_velocity_joint_[i])
+      {
+        // ================= WHEELS =================
+        servo_.WheelMode(id);
+        servo_.EnableTorque(id, 1);
+        servo_.WriteSpe(id, 0, 0);
 
-      // double rad = raw_pos * (2.0 * M_PI / 4096.0);  // pi values ka hai
-      double rad =  joint_directions_[i]*(raw_pos - 2048.0) * (2.0 * M_PI / 4096.0);
-      // IMPORTANT: Sync everything to current position
-      position_[i] = rad;
-      cmd_position_[i] = rad;
-      last_sent_position_[i] = rad;
+        cmd_velocity_[i] = 0.0;
+        velocity_[i] = 0.0;
+      }
+      else
+      {
+        // ================= ARM =================
+        servo_.EnableTorque(id, 1);
+
+        // Read current physical position
+        int raw_pos = servo_.ReadPos(id);
+
+        double rad =  joint_directions_[i]*(raw_pos - 2048.0) * (2.0 * M_PI / 4096.0);
+        // IMPORTANT: Sync everything to current position
+        position_[i] = rad;
+        cmd_position_[i] = rad;
+        last_sent_position_[i] = rad;
+      }
     }
+
+    std::cout << "--- ON_ACTIVATE COMPLETE ---" << std::endl;
+
+    return hardware_interface::CallbackReturn::SUCCESS;
   }
-
-  std::cout << "--- ON_ACTIVATE COMPLETE ---" << std::endl;
-
-  return hardware_interface::CallbackReturn::SUCCESS;
-}
 
   hardware_interface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State &) override
@@ -167,68 +160,79 @@ hardware_interface::CallbackReturn on_activate(
 
     return hardware_interface::CallbackReturn::SUCCESS;
   }
-hardware_interface::return_type read(
-  const rclcpp::Time &, const rclcpp::Duration &) override
-{
-  // Completely disable all hardware reads.
-  // Just mirror commands as feedback.
 
-  for (size_t i = 0; i < joint_ids_.size(); ++i)
+  hardware_interface::return_type read(
+    const rclcpp::Time &, const rclcpp::Duration &) override
   {
-    if (is_velocity_joint_[i])
+    for (size_t i = 0; i < joint_ids_.size(); ++i)
     {
-      velocity_[i] = cmd_velocity_[i];
-    }
-    else
-    {
-      position_[i] = cmd_position_[i];
-      velocity_[i] = 0.0;
-    }
-  }
+      int id = joint_ids_[i];
 
-  return hardware_interface::return_type::OK;
-}
-
-hardware_interface::return_type write(
-  const rclcpp::Time &, const rclcpp::Duration &) override
-{
-  for (size_t i = 0; i < joint_ids_.size(); ++i)
-  {
-    int id = joint_ids_[i];
-
-    if (is_velocity_joint_[i])
-    {
-      // Clamp velocity to safe range
-      double vel = std::clamp(cmd_velocity_[i], -2.0, 2.0);
-
-      int raw_speed = static_cast<int>(vel * 200.0);
-
-      // Skip tiny values to reduce bus spam
-      if (std::abs(raw_speed) < 1)
-        raw_speed = 0;
-
-      // Fire and forget (ignore return)
-      servo_.WriteSpe(id, raw_speed, 0);
-    }
-    else
-    {
-      if (std::abs(cmd_position_[i] - last_sent_position_[i]) > 0.002)
+      if (is_velocity_joint_[i])
       {
-        double pos = std::clamp(cmd_position_[i], -3.14, 3.14);
-
-        int raw_pos = static_cast<int>(
-          (joint_directions_[i]*pos * (4096.0 / (2.0 * M_PI))) + 2048.0
-        );
-
-        servo_.WritePosEx(id, raw_pos, 200, 20);
-
-        last_sent_position_[i] = cmd_position_[i];
+        // --- WHEELS: Read actual physical position for Odometry ---
+        int raw_pos = servo_.ReadPos(id);
+        
+        if (raw_pos != -1) // -1 usually means read failed
+        {
+          // Convert the raw 0-4096 ticks into radians
+          position_[i] = raw_pos * (2.0 * M_PI / 4096.0);
+        }
+        
+        // Mirror velocity commands to state
+        velocity_[i] = cmd_velocity_[i];
+      }
+      else
+      {
+        // --- ARM: Mirror commands to save serial bandwidth ---
+        position_[i] = cmd_position_[i];
+        velocity_[i] = 0.0;
       }
     }
+
+    return hardware_interface::return_type::OK;
   }
 
-  return hardware_interface::return_type::OK;
-}
+  hardware_interface::return_type write(
+    const rclcpp::Time &, const rclcpp::Duration &) override
+  {
+    for (size_t i = 0; i < joint_ids_.size(); ++i)
+    {
+      int id = joint_ids_[i];
+
+      if (is_velocity_joint_[i])
+      {
+        // Clamp velocity to safe range
+        double vel = std::clamp(cmd_velocity_[i], -20.0, 20.0);
+
+        int raw_speed = static_cast<int>(vel * 200.0);
+
+        // Skip tiny values to reduce bus spam
+        if (std::abs(raw_speed) < 1)
+          raw_speed = 0;
+
+        // Fire and forget (ignore return)
+        servo_.WriteSpe(id, raw_speed, 0);
+      }
+      else
+      {
+        if (std::abs(cmd_position_[i] - last_sent_position_[i]) > 0.002)
+        {
+          double pos = std::clamp(cmd_position_[i], -3.14, 3.14);
+
+          int raw_pos = static_cast<int>(
+            (joint_directions_[i]*pos * (4096.0 / (2.0 * M_PI))) + 2048.0
+          );
+
+          servo_.WritePosEx(id, raw_pos, 200, 20);
+
+          last_sent_position_[i] = cmd_position_[i];
+        }
+      }
+    }
+
+    return hardware_interface::return_type::OK;
+  }
 
 private:
   SMS_STS servo_;
@@ -245,23 +249,19 @@ private:
   std::vector<double> last_sent_position_;
   std::vector<bool> is_velocity_joint_;
   std::vector<int> joint_directions_ =
-{ 1,1,1,
-  1,
-  -1,
-  -1,
-  -1,
-  -1,
-  1
-};
-rclcpp::Clock clock_{RCL_ROS_TIME};
+  { 1,1,1,
+    1,
+    -1,
+    -1,
+    -1,
+    -1,
+    1
+  };
+  rclcpp::Clock clock_{RCL_ROS_TIME};
 };
 
 }  // namespace st3215_hardware_interface
 
-
 PLUGINLIB_EXPORT_CLASS(
   st3215_hardware_interface::ST3215System,
   hardware_interface::SystemInterface)
-
-
-  
