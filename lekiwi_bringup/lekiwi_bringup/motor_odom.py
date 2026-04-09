@@ -26,11 +26,11 @@ class MotorOdom(Node):
         self.joint_sub = self.create_subscription(JointState, '/joint_states', self.joint_callback, 10)
         self.vel_pub = self.create_publisher(Float64MultiArray, '/base_velocity_controller/commands', 10)
 
-        self.wheel_names = ['ST3215_Servo_Motor-v1_Revolute-64','ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1-2_Revolute-60'] 
+        self.wheel_names = ['ST3215_Servo_Motor-v1-2_Revolute-60','ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1_Revolute-64'] 
 
     def cmd_callback(self, msg):
         cmd_x, cmd_y, w = msg.linear.x, msg.linear.y, msg.angular.z
-        
+            
         rad = math.radians(self.heading_offset_deg)
         vx = cmd_x * math.cos(rad) - cmd_y * math.sin(rad)
         vy = cmd_x * math.sin(rad) + cmd_y * math.cos(rad)
