@@ -27,7 +27,7 @@ class MotorOdom(Node):
         self.vel_pub = self.create_publisher(Float64MultiArray, '/base_velocity_controller/commands', 10)
 
         # Your corrected wheel names
-        self.wheel_names = ['ST3215_Servo_Motor-v1-2_Revolute-60''ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1_Revolute-64'] 
+        self.wheel_names = ['ST3215_Servo_Motor-v1-2_Revolute-60','ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1_Revolute-64'] 
 
     def cmd_callback(self, msg):
         cmd_x, cmd_y, w = msg.linear.x, msg.linear.y, msg.angular.z
