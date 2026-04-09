@@ -59,12 +59,12 @@ def generate_launch_description():
         ),
 
         # 4. RVIZ2: For visualization
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen'
-        )
+       # Node(
+         #   package='rviz2',
+        #    executable='rviz2',
+       #     name='rviz2',
+      #      output='screen'
+     #   )
     ])
 
 #base_footprint → base_link → camera_link(no odom link)

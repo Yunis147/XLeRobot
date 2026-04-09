@@ -1,11 +1,11 @@
 amcl:
   ros__parameters:
     use_sim_time: False
-    alpha1: 0.6
-    alpha2: 0.6
-    alpha3: 0.6
-    alpha4: 0.6
-    alpha5: 0.6
+    alpha1: 0.3
+    alpha2: 0.3
+    alpha3: 0.3
+    alpha4: 0.3
+    alpha5: 0.3
     base_frame_id: "base_footprint"
     global_frame_id: "map"
     odom_frame_id: "odom"
@@ -32,7 +32,7 @@ amcl:
 
 bt_navigator:
   ros__parameters:
-    default_nav_to_pose_bt_xml: "/home/rpd/Nav2/my_robot/my_robot/sequential_nav.xml"
+    #default_nav_to_pose_bt_xml: "/home/rpd/Nav2/my_robot/my_robot/sequential_nav.xml"
     global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odom
