@@ -26,11 +26,12 @@ class MotorOdom(Node):
         self.joint_sub = self.create_subscription(JointState, '/joint_states', self.joint_callback, 10)
         self.vel_pub = self.create_publisher(Float64MultiArray, '/base_velocity_controller/commands', 10)
 
-        self.wheel_names = ['ST3215_Servo_Motor-v1-2_Revolute-60','ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1_Revolute-64'] 
+        # Your corrected wheel names
+        self.wheel_names = ['ST3215_Servo_Motor-v1-2_Revolute-60''ST3215_Servo_Motor-v1-1_Revolute-62','ST3215_Servo_Motor-v1_Revolute-64'] 
 
     def cmd_callback(self, msg):
         cmd_x, cmd_y, w = msg.linear.x, msg.linear.y, msg.angular.z
-            
+        
         rad = math.radians(self.heading_offset_deg)
         vx = cmd_x * math.cos(rad) - cmd_y * math.sin(rad)
         vy = cmd_x * math.sin(rad) + cmd_y * math.cos(rad)
@@ -93,6 +94,12 @@ class MotorOdom(Node):
         t2.header.stamp, t2.header.frame_id, t2.child_frame_id = now, "base_footprint", "base_link"
         t2.transform.rotation.w = 1.0
 
+        # --- THE BRIDGE ---
+        # Connects the math tree to the physical hardware tree
+        t_bridge = TransformStamped()
+        t_bridge.header.stamp, t_bridge.header.frame_id, t_bridge.child_frame_id = now, "base_link", "base_plate_layer1-v5"
+        t_bridge.transform.rotation.w = 1.0
+
         t3 = TransformStamped()
         t3.header.stamp, t3.header.frame_id, t3.child_frame_id = now, "base_link", "camera_link"
         t3.transform.translation.x, t3.transform.translation.z, t3.transform.rotation.w = 0.1, 0.2, 1.0
@@ -101,7 +108,8 @@ class MotorOdom(Node):
         t4.header.stamp, t4.header.frame_id, t4.child_frame_id = now, "camera_link", "camera_depth_frame"
         t4.transform.rotation.w = 1.0
 
-        self.tf_broadcaster.sendTransform([t1, t2, t3, t4])
+        # Added t_bridge to the list being published
+        self.tf_broadcaster.sendTransform([t1, t2, t_bridge, t3, t4])
 
         odom = Odometry()
         odom.header.stamp, odom.header.frame_id, odom.child_frame_id = now, "odom", "base_footprint"
@@ -112,8 +120,12 @@ class MotorOdom(Node):
 def main():
     rclpy.init()
     node = MotorOdom()
-    try: rclpy.spin(node)
-    except: rclpy.shutdown()
+    try: 
+        rclpy.spin(node)
+    except KeyboardInterrupt: 
+        pass
+    finally:
+        rclpy.shutdown()
 
 if __name__ == '__main__': 
     main()
