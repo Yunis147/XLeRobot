@@ -17,7 +17,7 @@ class MotorOdom(Node):
         self.x, self.y, self.theta = 0.0, 0.0, 0.0
         self.prev_1, self.prev_2, self.prev_3 = None, None, None
          
-        self.heading_offset_deg = 120.0
+        self.heading_offset_deg = 117.0
 
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
