@@ -34,7 +34,7 @@ def generate_launch_description():
                 'range_min': 0.45, 
                 'range_max': 5.0, 
                 'output_frame': 'camera_depth_frame',
-                'use_sim_time': False  # ADDED: Must match Nav2's use_sim_time to prevent TF timestamp drops
+                'use_sim_time': False  
             }]
         ),
         IncludeLaunchDescription(
@@ -45,7 +45,6 @@ def generate_launch_description():
                 'params_file': params_file
             }.items()
         ),
-        # ADDED: RViz is required so you can click "2D Pose Estimate" to initialize AMCL
       #  Node(
        #     package='rviz2',
         #    executable='rviz2',
