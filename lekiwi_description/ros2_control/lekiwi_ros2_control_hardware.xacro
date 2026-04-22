@@ -9,7 +9,7 @@
         <plugin>st3215_hardware_interface/ST3215System</plugin>
 
 
-      <param name="port_name">/dev/ttyACM0</param>
+      <param name="port_name">/dev/motor_controller</param>
         <param name="baud_rate">1000000</param>
       </hardware>
 
