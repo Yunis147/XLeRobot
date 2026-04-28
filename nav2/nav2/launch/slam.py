@@ -23,14 +23,16 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='base_to_laser_tf',
-            arguments=['0.1', '0.0', '0.2', '0', '0', '0', 'base_link', 'laser']
+            # CORRECTED ARGUMENTS: [x, y, z, roll, pitch, yaw]
+            # Yaw (90 deg left) must be the 6th argument.
+            arguments=['0.01', '0.0', '0.3', '-1.57', '0.0', '0.0', 'base_link', 'laser']
         ),
 
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
             name='footprint_to_link_tf',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_footprint', 'base_link']
+            arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'base_footprint', 'base_link']
         ),
 
         IncludeLaunchDescription(
@@ -40,11 +42,4 @@ def generate_launch_description():
                 'transform_timeout': '0.5'
             }.items()
         ),
-
-        # Node(
-        #    package='rviz2',
-        #    executable='rviz2',
-        #    name='rviz2',
-        #    output='screen'
-        # )
     ])

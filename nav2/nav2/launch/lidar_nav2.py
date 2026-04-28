@@ -13,11 +13,11 @@ def generate_launch_description():
     rplidar_dir = get_package_share_directory('rplidar_ros')
     rplidar_launch_file = os.path.join(rplidar_dir, 'launch', 'rplidar_a1_launch.py')
     
-    map_file = '/home/rpd/Nav2/src/nav2/nav2/my_new_map.yaml'
-    params_file = '/home/rpd/Nav2/src/nav2/nav2/dwb_params.yaml'
+    map_file = '/home/rpd/Nav2/src/nav2/nav2/map/lidar_map.yaml'
+    params_file = '/home/rpd/Nav2/src/nav2/nav2/params/dwb_params.yaml'
 
     return LaunchDescription([
-
+        
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(rplidar_launch_file)
         ),
@@ -25,7 +25,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='base_to_laser_tf',
-            arguments=['0.1', '0.0', '0.2', '0', '0', '0', 'base_link', 'laser']
+            arguments=['0.01', '0.0', '0.3', '-1.57', '0.0', '0.0', 'base_link', 'laser']
         ),
 
         Node(
