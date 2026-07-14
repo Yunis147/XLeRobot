@@ -6,8 +6,9 @@ from geometry_msgs.msg import Twist, TransformStamped
 import tf2_ros
 import math
 from st3215 import ST3215
-
+print("2. Imported st3215 module", flush=True)
 servo = ST3215('/dev/ttyACM0')
+print("servo connected",flush=True)
 TICKS_PER_REV = 4096
 SQRT3 = 1.73205
 

@@ -7,43 +7,53 @@ import tf2_ros
 import math
 from st3215 import ST3215
 
+print("1. Starting imports...", flush=True)
 servo = ST3215('/dev/ttyACM0')
+print("2. Servo connected!", flush=True)
 TICKS_PER_REV = 4096
 SQRT3 = 1.73205
 
 class MotorOdom(Node):
     def __init__(self):
         super().__init__('motor_odom')
+        print("3. Node constructor starting...", flush=True)
         self.wheel_radius, self.robot_radius = 0.05, 0.15
         self.x, self.y, self.theta = 0.0, 0.0, 0.0
         self.prev_1, self.prev_2, self.prev_3 = None, None, None
-
         self.heading_offset_deg = 120.0
 
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
         self.timer = self.create_timer(0.033, self.update)
+        print("4. Node constructor finished, publisher/timer created.", flush=True)
 
     def cmd_callback(self, msg):
         cmd_x, cmd_y, w = msg.linear.x, msg.linear.y, msg.angular.z
-
         rad = math.radians(self.heading_offset_deg)
         vx = cmd_x * math.cos(rad) - cmd_y * math.sin(rad)
         vy = cmd_x * math.sin(rad) + cmd_y * math.cos(rad)
-
         v1 = -(SQRT3/2.0)*vx + 0.5*vy + self.robot_radius*w
         v2 = (SQRT3/2.0)*vx + 0.5*vy + self.robot_radius*w
         v3 = -1.0*vy + self.robot_radius*w
         try:
             for i, v in enumerate([v1, v2, v3], 1): servo.Rotate(i, int(v * 3000))
-        except: pass
+        except Exception as e:
+            self.get_logger().error(f"Rotate failed: {e}")
 
     def update(self):
         try:
             p1, p2, p3 = servo.ReadPosition(1), servo.ReadPosition(2), servo.ReadPosition(3)
-        except: return
-        if p1 is None or self.prev_1 is None:
+        except Exception as e:
+            self.get_logger().error(f"ReadPosition failed: {e}", throttle_duration_sec=2.0)
+            return
+
+        if p1 is None or p2 is None or p3 is None:
+            self.get_logger().warn(f"ReadPosition returned None: p1={p1}, p2={p2}, p3={p3}", throttle_duration_sec=2.0)
+            return
+
+        if self.prev_1 is None:
+            self.get_logger().info(f"First reading captured: p1={p1}, p2={p2}, p3={p3}")
             self.prev_1, self.prev_2, self.prev_3 = p1, p2, p3
             return
 
@@ -57,11 +67,9 @@ class MotorOdom(Node):
         self.prev_1, self.prev_2, self.prev_3 = p1, p2, p3
 
         raw_dx, raw_dy = (d2 - d1) / SQRT3, (d1 + d2 - (2.0 * d3)) / 3.0
-
         rad_inv = math.radians(-self.heading_offset_deg)
         dx = raw_dx * math.cos(rad_inv) - raw_dy * math.sin(rad_inv)
         dy = raw_dx * math.sin(rad_inv) + raw_dy * math.cos(rad_inv)
-
         dth = (d1 + d2 + d3) / (3.0 * self.robot_radius)
         self.x += dx * math.cos(self.theta) - dy * math.sin(self.theta)
         self.y += dx * math.sin(self.theta) + dy * math.cos(self.theta)
@@ -86,11 +94,20 @@ class MotorOdom(Node):
         odom.pose.pose.position.x, odom.pose.pose.position.y = float(self.x), float(self.y)
         odom.pose.pose.orientation.z, odom.pose.pose.orientation.w = qz, qw
         self.odom_pub.publish(odom)
+        self.get_logger().info(f"Published odom: x={self.x:.3f}, y={self.y:.3f}, theta={self.theta:.3f}", throttle_duration_sec=2.0)
 
 def main():
-    rclpy.init(); node = MotorOdom()
-    try: rclpy.spin(node)
-    except: rclpy.shutdown()
-if __name__ == '__main__': main()
+    print("5. Calling rclpy.init()...", flush=True)
+    rclpy.init()
+    print("6. rclpy initialized, creating node...", flush=True)
+    node = MotorOdom()
+    print("7. Node created, entering spin...", flush=True)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rclpy.shutdown()
 
-# odom → base_footprint → base_link → laser (laser TF comes from slam.py)
+if __name__ == '__main__':
+    main()
