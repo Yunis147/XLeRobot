@@ -9,12 +9,12 @@ amcl:
     base_frame_id: "base_footprint"
     global_frame_id: "map"
     odom_frame_id: "odom"
-    set_initial_pose: true
-    initial_pose:
-      x: 0.5893974304199219
-      y: 0.05
-      z: 0.01
-      yaw: 0.0
+    set_initial_pose: true #false
+   # initial_pose:
+     # x: 0.5893974304199219
+     # y: 0.05
+     # z: 0.01
+     # yaw: 0.0
 
     resample_interval: 1
     robot_model_type: "nav2_amcl::OmniMotionModel"
@@ -85,7 +85,7 @@ controller_server:
       wz_std: 0.1
       vx_max: 0.5
       vx_min: 0.0
-      vy_max: 0.0
+      vy_max: 0.5
       vy_min: 0.0
       wz_max: 0.5
       iteration_count: 1
@@ -93,7 +93,7 @@ controller_server:
       transform_tolerance: 0.1
       temperature: 0.1
       gamma: 0.015
-      motion_model: "DiffDrive"
+      motion_model: "Omni"
       visualize: true
       regenerate_noises: true
       TrajectoryVisualizer:
