@@ -14,7 +14,7 @@ def generate_launch_description():
     rplidar_launch_file = os.path.join(rplidar_dir, 'launch', 'rplidar_a1_launch.py')
 
     map_file = '/home/rpd/lekiwi_ws/src/mobile-manipulator/nav2/nav2/map/base_only_map.yaml'
-    params_file = '/home/rpd/lekiwi_ws/src/mobile-manipulator/nav2/nav2/params/my_nav2_params.yaml'
+    params_file = '/home/rpd/lekiwi_ws/src/mobile-manipulator/nav2/nav2/params/base_nav2_params.yaml'
 
     return LaunchDescription([
 

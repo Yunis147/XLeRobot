@@ -9,7 +9,7 @@ amcl:
     base_frame_id: "base_footprint"
     global_frame_id: "map"
     odom_frame_id: "odom"
-    set_initial_pose: true #false
+    set_initial_pose: false
    # initial_pose:
      # x: 0.5893974304199219
      # y: 0.05
