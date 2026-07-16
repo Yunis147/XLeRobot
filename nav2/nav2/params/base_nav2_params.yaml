@@ -72,9 +72,9 @@ controller_server:
       yaw_goal_tolerance: 0.25
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 24
+      time_steps: 40
       model_dt: 0.1
-      batch_size: 200
+      batch_size: 400
       ax_max: 3.0
       ax_min: -3.0
       ay_max: 3.0
@@ -115,9 +115,9 @@ controller_server:
         cost_weight: 5.0
         threshold_to_consider: 1.4
       GoalAngleCritic:
-        enabled: true 
+        enabled: false
         cost_power: 1
-        cost_weight: 3.0
+        cost_weight: 0.0
         threshold_to_consider: 0.5
       PreferForwardCritic:
         enabled: true
