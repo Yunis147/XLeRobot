@@ -9,12 +9,12 @@ amcl:
     base_frame_id: "base_footprint"
     global_frame_id: "map"
     odom_frame_id: "odom"
-    set_initial_pose: false #true
-    #initial_pose:
-    #  x: 2.1997387409210205
-    #  y: -1.1962696313858032
-    #  z: 0.01
-    #  yaw: 0.0
+    set_initial_pose: true
+    initial_pose:
+      x: 0.002
+      y: -0.020
+      z: 0.0
+      yaw: 0.0
 
     resample_interval: 1
     robot_model_type: "nav2_amcl::OmniMotionModel"
@@ -68,15 +68,15 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.10
+      yaw_goal_tolerance: 0.20
       
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0  # No reversing allowed normally
-      min_vel_y: 0.0  # Diff drive (no sideways)
+      min_vel_x: -0.5  # No reversing allowed normally
+      min_vel_y: -0.4  # Diff drive (no sideways)
       max_vel_x: 0.5
       max_vel_y: 0.4  # Diff drive
       max_vel_theta: 1.0
@@ -84,29 +84,29 @@ controller_server:
       max_speed_xy: 0.5
       min_speed_theta: 0.0
       acc_lim_x: 2.5
-      acc_lim_y: 0.0
+      acc_lim_y: 2.5
       acc_lim_theta: 3.2
       decel_lim_x: -2.5
-      decel_lim_y: 0.0
+      decel_lim_y: -2.5
       decel_lim_theta: -3.2
       vx_samples: 20
-      vy_samples: 1
+      vy_samples: 20
       vtheta_samples: 20
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
+      xy_goal_tolerance: 0.10
+      trans_stopped_velocity: 0.05
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0               # High weight to keep nose pointed along path
+      PathAlign.scale: 0.0               # High weight to keep nose pointed along path
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
+      GoalAlign.scale: 0.0
       GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0                # High weight to stick to the line
+      PathDist.scale: 0.0                # High weight to stick to the line
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 5.0
@@ -124,7 +124,8 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.22
+     # robot_radius: 0.16
+      footprint: '[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]'
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -162,7 +163,8 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_footprint
-      robot_radius: 0.22
+      #robot_radius: 0.16
+      footprint: '[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]'
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]

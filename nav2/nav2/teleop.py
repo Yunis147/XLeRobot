@@ -9,8 +9,8 @@ MOVE_BINDINGS = {
     's': (-1, 0, 0),  # backward
     'a': (0, 1, 0),   # strafe left
     'd': (0, -1, 0),  # strafe right
-    'q': (0, 0, 1),   # rotate left (ccw)
-    'e': (0, 0, -1),  # rotate right (cw)
+    'q': (0, 0, -1),   # rotate left (ccw)
+    'e': (0, 0, 1),  # rotate right (cw)
 }
 
 SPEED = 0.4   # m/s, starting value

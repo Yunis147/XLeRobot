@@ -17,7 +17,7 @@ class MotorOdom(Node):
     def __init__(self):
         super().__init__('motor_odom')
         print("3. Node constructor starting...", flush=True)
-        self.wheel_radius, self.robot_radius = 0.05, 0.15
+        self.wheel_radius, self.robot_radius = 0.05, 0.16
         self.x, self.y, self.theta = 0.0, 0.0, 0.0
         self.prev_1, self.prev_2, self.prev_3 = None, None, None
         self.heading_offset_deg = 120.0
@@ -29,21 +29,25 @@ class MotorOdom(Node):
         print("4. Node constructor finished, publisher/timer created.", flush=True)
 
     def cmd_callback(self, msg):
-        cmd_x, cmd_y, w = msg.linear.x, msg.linear.y, msg.angular.z
+        cmd_x, cmd_y, w = msg.linear.x, -msg.linear.y, msg.angular.z
         rad = math.radians(self.heading_offset_deg)
         vx = cmd_x * math.cos(rad) - cmd_y * math.sin(rad)
-        vy = cmd_x * math.sin(rad) + cmd_y * math.cos(rad)
+        vy = cmd_x * math.sin(rad) + cmd_y * math.cos(rad)  # negated to fix left/right
         v1 = -(SQRT3/2.0)*vx + 0.5*vy + self.robot_radius*w
-        v2 = (SQRT3/2.0)*vx + 0.5*vy + self.robot_radius*w
+        v2 =  (SQRT3/2.0)*vx + 0.5*vy + self.robot_radius*w
         v3 = -1.0*vy + self.robot_radius*w
         try:
-            for i, v in enumerate([v1, v2, v3], 1): servo.Rotate(i, int(v * 3000))
+            servo.Rotate(7, int(v1 * -3000))
+            servo.Rotate(8, int(v2 * -3000))
+            servo.Rotate(9, int(v3 * -3000))
         except Exception as e:
             self.get_logger().error(f"Rotate failed: {e}")
 
     def update(self):
         try:
-            p1, p2, p3 = servo.ReadPosition(1), servo.ReadPosition(2), servo.ReadPosition(3)
+            p1 = servo.ReadPosition(7)
+            p2 = servo.ReadPosition(8)
+            p3 = servo.ReadPosition(9)
         except Exception as e:
             self.get_logger().error(f"ReadPosition failed: {e}", throttle_duration_sec=2.0)
             return
@@ -70,6 +74,7 @@ class MotorOdom(Node):
         rad_inv = math.radians(-self.heading_offset_deg)
         dx = raw_dx * math.cos(rad_inv) - raw_dy * math.sin(rad_inv)
         dy = raw_dx * math.sin(rad_inv) + raw_dy * math.cos(rad_inv)
+        dx = -dx
         dth = (d1 + d2 + d3) / (3.0 * self.robot_radius)
         self.x += dx * math.cos(self.theta) - dy * math.sin(self.theta)
         self.y += dx * math.sin(self.theta) + dy * math.cos(self.theta)
