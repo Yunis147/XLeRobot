@@ -68,45 +68,44 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.10
-      yaw_goal_tolerance: 0.20
-      
+      xy_goal_tolerance: 0.08
+      yaw_goal_tolerance: 0.15
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: -0.5  # No reversing allowed normally
-      min_vel_y: -0.4  # Diff drive (no sideways)
-      max_vel_x: 0.5
-      max_vel_y: 0.4  # Diff drive
-      max_vel_theta: 1.0
+      min_vel_x: -0.3
+      min_vel_y: -0.3
+      max_vel_x: 0.4
+      max_vel_y: 0.4
+      max_vel_theta: 0.8
       min_speed_xy: 0.0
-      max_speed_xy: 0.5
+      max_speed_xy: 0.4
       min_speed_theta: 0.0
-      acc_lim_x: 2.5
-      acc_lim_y: 2.5
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: -2.5
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 20
+      acc_lim_x: 1.5
+      acc_lim_y: 1.5
+      acc_lim_theta: 2.0
+      decel_lim_x: -1.5
+      decel_lim_y: -1.5
+      decel_lim_theta: -2.0
+      vx_samples: 15
+      vy_samples: 15
       vtheta_samples: 20
-      sim_time: 1.7
+      sim_time: 1.5
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.10
+      xy_goal_tolerance: 0.08
       trans_stopped_velocity: 0.05
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.02
-      PathAlign.scale: 0.0               # High weight to keep nose pointed along path
+      PathAlign.scale: 8.0
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 0.0
+      GoalAlign.scale: 8.0
       GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 0.0                # High weight to stick to the line
+      PathDist.scale: 32.0
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 5.0
@@ -124,13 +123,12 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-     # robot_radius: 0.16
       footprint: '[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]'
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.70
+        cost_scaling_factor: 4.0
+        inflation_radius: 0.40
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -163,7 +161,6 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_footprint
-      #robot_radius: 0.16
       footprint: '[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]'
       resolution: 0.05
       track_unknown_space: true
@@ -187,8 +184,8 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.7
+        cost_scaling_factor: 4.0
+        inflation_radius: 0.40
       always_send_full_costmap: True
 
 map_saver:
@@ -280,10 +277,10 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.5, 0.5, 2.0]
-    min_velocity: [-0.5, -0.5, -2.0]
-    max_accel: [2.5, 2.5, 3.2]
-    max_decel: [-2.5, -2.5, -3.2]
+    max_velocity: [0.4, 0.4, 1.5]
+    min_velocity: [-0.4, -0.4, -1.5]
+    max_accel: [1.5, 1.5, 2.0]
+    max_decel: [-1.5, -1.5, -2.0]
     odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
