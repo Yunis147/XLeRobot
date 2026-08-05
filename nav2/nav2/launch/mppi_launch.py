@@ -7,11 +7,11 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
+    # Pointing strictly to your new MPPI params file
     map_file    = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/map/xle_room_map.yaml'
     filter_yaml = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/laser_filter.yaml'
-    nav2_params = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/dwb_params.yaml'
+    nav2_params = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/mppi_params.yaml'
 
-    # RPLidar Node
     rplidar_node = Node(
         package='rplidar_ros',
         executable='rplidar_node',
@@ -26,7 +26,6 @@ def generate_launch_description():
         remappings=[('scan', '/scan_raw')]
     )
 
-    # Laser Filter Node
     laser_filter_node = Node(
         package='laser_filters',
         executable='scan_to_scan_filter_chain',
@@ -39,7 +38,7 @@ def generate_launch_description():
         ]
     )
 
-    # Corrected Base-to-Laser TF
+    # Base to Laser TF
     static_tf_laser = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -47,7 +46,7 @@ def generate_launch_description():
         arguments=['0.01', '0.0', '0.6', '1.57', '0.0', '0.0', 'base_link', 'laser']
     )
 
-    # Restored Footprint-to-Link TF
+    # Footprint to Link TF
     static_tf_footprint = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -55,7 +54,6 @@ def generate_launch_description():
         arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', 'base_footprint', 'base_link']
     )
 
-    # Nav2 Bringup (This is the block that went missing!)
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     nav2_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
