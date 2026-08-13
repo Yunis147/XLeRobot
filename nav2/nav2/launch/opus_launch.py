@@ -7,10 +7,10 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    # Pointing strictly to your new MPPI params file
+    # Pointing strictly to the new opus_params.yaml (MPPI, holonomic, goal-yaw enforced)
     map_file    = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/map/xle_room_map.yaml'
     filter_yaml = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/laser_filter.yaml'
-    nav2_params = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/mppi_params.yaml'
+    nav2_params = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/opus_params.yaml'
 
     rplidar_node = Node(
         package='rplidar_ros',
@@ -38,7 +38,7 @@ def generate_launch_description():
         ]
     )
 
-    # Base to Laser TF
+    # Base to Laser TF (confirmed correct: x=0.01, z=0.6, yaw=1.57)
     static_tf_laser = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -46,7 +46,7 @@ def generate_launch_description():
         arguments=['0.01', '0.0', '0.6', '1.57', '0.0', '0.0', 'base_link', 'laser']
     )
 
-    # Footprint to Link TF
+    # Footprint to Link TF (identity)
     static_tf_footprint = Node(
         package='tf2_ros',
         executable='static_transform_publisher',

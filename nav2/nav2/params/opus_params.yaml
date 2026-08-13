@@ -15,7 +15,6 @@ amcl:
       y: -0.020
       z: 0.0
       yaw: 0.0
-
     resample_interval: 1
     robot_model_type: "nav2_amcl::OmniMotionModel"
     save_pose_rate: 0.5
@@ -50,7 +49,7 @@ bt_navigator:
 
 controller_server:
   ros__parameters:
-    controller_frequency: 10.0
+    controller_frequency: 20.0
     costmap_update_timeout: 0.30
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
@@ -69,32 +68,27 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
-
-    precise_goal_checker:
-      stateful: True
-      plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.10
-      yaw_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.10
 
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 40
-      model_dt: 0.1
-      batch_size: 400
+      time_steps: 56
+      model_dt: 0.05
+      batch_size: 2000
       ax_max: 3.0
       ax_min: -3.0
       ay_max: 3.0
+      ay_min: -3.0
       az_max: 3.5
-      vx_std: 0.2
-      vy_std: 0.2
-      wz_std: 0.1
+      vx_std: 0.5
+      vy_std: 0.5
+      wz_std: 0.4
       vx_max: 0.4
       vx_min: -0.4
       vy_max: 0.4
       vy_min: -0.4
-      wz_max: 0.8
+      wz_max: 1.0
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 0.1
@@ -106,10 +100,13 @@ controller_server:
       TrajectoryVisualizer:
         trajectory_step: 5
         time_step: 3
+      # NOTE: TwirlingCritic removed. It penalizes ALL angular velocity, which
+      # suppresses the final rotate-to-goal an omni base needs. GoalAngleCritic
+      # owns the final yaw instead.
       critics: [
         "ConstraintCritic", "CostCritic", "GoalCritic",
         "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic",
-        "PathAngleCritic", "PreferForwardCritic"]
+        "PathAngleCritic"]
       ConstraintCritic:
         enabled: true
         cost_power: 1
@@ -118,16 +115,11 @@ controller_server:
         enabled: true
         cost_power: 1
         cost_weight: 5.0
-        threshold_to_consider: 1.4
+        threshold_to_consider: 1.5
       GoalAngleCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 5.0
-        threshold_to_consider: 0.4
-      PreferForwardCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 5.0
+        cost_weight: 6.0
         threshold_to_consider: 0.5
       CostCritic:
         enabled: true
@@ -135,7 +127,7 @@ controller_server:
         cost_weight: 3.81
         near_collision_cost: 253
         critical_cost: 300.0
-        consider_footprint: false
+        consider_footprint: true
         collision_cost: 1000000.0
         near_goal_distance: 1.0
         trajectory_point_step: 2
@@ -144,16 +136,19 @@ controller_server:
         cost_power: 1
         cost_weight: 14.0
         max_path_occupancy_ratio: 0.05
-        trajectory_point_step: 4
+        trajectory_point_step: 3
         threshold_to_consider: 0.5
-        offset_from_furthest: 20
+        offset_from_furthest: 8
+        # SmacPlanner2D returns identity (yaw=0) orientations for intermediate
+        # path poses, so aligning to them forces the robot to face map-+x for the
+        # whole path -> continuous rotation in transit. Must be false here.
         use_path_orientations: false
       PathFollowCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 10.0
-        offset_from_furthest: 5
-        threshold_to_consider: 1.4
+        cost_weight: 5.0
+        offset_from_furthest: 4
+        threshold_to_consider: 1.5
       PathAngleCritic:
         enabled: true
         cost_power: 1
@@ -161,7 +156,7 @@ controller_server:
         offset_from_furthest: 4
         threshold_to_consider: 0.5
         max_angle_to_furthest: 1.0
-        mode: 0
+        mode: 2
 
 local_costmap:
   local_costmap:
@@ -174,12 +169,12 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.16
+      footprint: "[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]"
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.70
+        cost_scaling_factor: 10.0
+        inflation_radius: 0.50
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -200,9 +195,6 @@ local_costmap:
           raytrace_min_range: 0.0
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
-      static_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: True
       always_send_full_costmap: True
 
 global_costmap:
@@ -212,7 +204,7 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_footprint
-      robot_radius: 0.16
+      footprint: "[[0.175, 0.225], [-0.175, 0.225], [-0.175, -0.225], [0.175, -0.225]]"
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -235,8 +227,8 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.7
+        cost_scaling_factor: 5.0
+        inflation_radius: 0.9
       always_send_full_costmap: True
 
 map_saver:
@@ -262,7 +254,10 @@ planner_server:
       max_planning_time: 3.5
       motion_model_for_search: "MOORE"
       cost_travel_multiplier: 2.0
-      use_final_approach_orientation: true
+      # false => last path pose gets the requested RViz goal-arrow orientation
+      # (verified in smac_planner_2d.cpp). true => last pose = approach tangent,
+      # so MPPI's GoalAngleCritic would never aim at your arrow. MUST be false.
+      use_final_approach_orientation: false
       smoother:
         max_iterations: 1000
         w_smooth: 0.3
@@ -419,16 +414,3 @@ docking_server:
       projection_time: 5.0
       simulation_step: 0.1
       dock_collision_threshold: 0.3
-
-
-
-
-
-
-
-
-
-
-
-
-

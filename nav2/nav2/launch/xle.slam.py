@@ -14,7 +14,7 @@ def generate_launch_description():
     rplidar_launch_file = os.path.join(rplidar_dir, 'launch', 'rplidar_a1_launch.py')
     
     # Path to our new filter config
-    filter_params = '/home/rpd/lekiwi_ws/src/mobile-manipulator/nav2/nav2/params/laser_filter.yaml'
+    filter_params = '/home/rpd/xlerobot/src/XLeRobot/nav2/nav2/params/laser_filter.yaml'
 
     return LaunchDescription([
 
@@ -44,7 +44,7 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='base_to_laser_tf',
-            arguments=['0.01', '0.0', '0.6', '-1.57', '0.0', '0.0', 'base_link', 'laser']
+            arguments=['0.01', '0.0', '0.6', '1.57', '0.0', '0.0', 'base_link', 'laser']
         ),
 
         # 4. SLAM Toolbox

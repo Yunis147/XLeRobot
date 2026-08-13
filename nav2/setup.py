@@ -12,10 +12,12 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        
-        # FIXED: correct path to launch files
         (os.path.join('share', package_name, 'launch'),
             glob('nav2/launch/*.py')),
+        (os.path.join('share', package_name, 'params'),
+            glob('nav2/params/*.yaml')),
+        (os.path.join('share', package_name, 'map'),
+            glob('nav2/map/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -23,14 +25,10 @@ setup(
     maintainer_email='anirudh110106@gmail.com',
     description='Robot system with odometry and SLAM',
     license='Apache License 2.0',
-    extras_require={
-        'test': [
-            'pytest',
-        ],
-    },
+    extras_require={'test': ['pytest']},
     entry_points={
         'console_scripts': [
-            'odom = nav2.odom:main',
+            'odom = nav2.base_odom:main',
             'laser_node = nav2.laser:main',
         ],
     },
